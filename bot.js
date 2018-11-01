@@ -4,9 +4,22 @@ const helpers = require('./helpers')
 
 const Twitter = new Twit(config)
 
-const sendDirectMessage = function () {
+const users = ["10025982", "4196983835"];
+
+const stream = T.stream('statuses/filter', {follow: users});
+
+stream.on('tweet', function (tweet) {
+    if (users.indexOf(tweet.user.id_str) > -1) {
+        console.log(tweet.user.name + ": " + tweet.text);
+        T.post('statuses/retweet/:id', { id: tweet.id_str }, function (err, data, response) {
+            console.log(data)
+        })
+    }
+})
+
+const postReporterRetweet = function () {
   const params = {
-    q: '#js OR #JavaScript OR #react OR #reactjs OR #nodejs OR #Nodejs, -filter:retweets',
+    q: '#azfamily, -filter:retweets',
     result_type: 'recent',
     lang: 'en'
   }
@@ -20,13 +33,6 @@ const sendDirectMessage = function () {
               By: ${status.user.name}\n\n`
       })
 
-      Twitter.get('followers/ids', {
-        user_id: 982290988562608129,
-        screen_name: 'herrklinkerhof3'
-      }, function (err, response) {
-        if (err) {
-          console.log('Something went wrong while getting followers. Error: ', err)
-        }
 
         if (response) {
           response.ids.forEach((id) => {
@@ -61,4 +67,4 @@ const sendDirectMessage = function () {
   })
 }
 
-sendDirectMessage()
+postReporterRetweet()
